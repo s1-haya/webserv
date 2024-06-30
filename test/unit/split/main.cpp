@@ -1,5 +1,5 @@
 #include "color.hpp"
-#include "split.hpp"
+#include "utils.hpp"
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept> // logic_error
@@ -23,9 +23,11 @@ void Run(const std::string &src, const std::string &substring, const Strs &expec
 	test_case++;
 
 	if (utils::SplitStr(src, substring) == expected) {
-		std::cerr << COLOR_GREEN << test_case << ".[OK] " << COLOR_RESET << src << std::endl;
+		std::cerr << utils::color::GREEN << test_case << ".[OK] " << utils::color::RESET << src
+				  << std::endl;
 	} else {
-		std::cerr << COLOR_RED << test_case << ".[NG] " << COLOR_RESET << src << std::endl;
+		std::cerr << utils::color::RED << test_case << ".[NG] " << utils::color::RESET << src
+				  << std::endl;
 		throw std::logic_error("SplitStr()");
 	}
 }
@@ -114,7 +116,7 @@ int main() {
 		Run("abc", "", CreateExpect(expected_22, 1));
 
 	} catch (const std::exception &e) {
-		std::cerr << COLOR_RED << "Error: " << e.what() << COLOR_RESET << std::endl;
+		std::cerr << utils::color::RED << "Error: " << e.what() << utils::color::RESET << std::endl;
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
