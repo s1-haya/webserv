@@ -13,11 +13,11 @@ class TestUnit:
         command: str = "make -C " + test_dir + " re && make -C " + test_dir + " run"
 
         # テストコマンド実行
-        ret_code, ret_stderr = run_command(command)
+        ret_code, ret_stdout, ret_stderr = run_command(command)
 
         # テスト結果をログとしてファイル出力
         log_filepath: str = self.UNIT_TEST_LOG_DIR + "/log_split_str.txt"
-        put_log(log_filepath, ret_stderr)
+        put_log(log_filepath, ret_stdout, ret_stderr)
 
         assert ret_code == RETURN_CODE_SUCCESS
 

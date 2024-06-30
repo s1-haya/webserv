@@ -6,20 +6,20 @@ from typing import Tuple
 RETURN_CODE_FAIL = 1
 
 
-def run_command(command: str) -> Tuple[int, str]:
+def run_command(command: str) -> Tuple[int, str, str]:
     try:
         # コマンド実行
         ret: CompletedProcess[str] = subprocess.run(
             command, shell=True, capture_output=True, text=True
         )
-        return ret.returncode, ret.stderr
+        return ret.returncode, ret.stdout, ret.stderr
 
     except subprocess.CalledProcessError as e:
         print(f"subprocess error: {e}")
-        return RETURN_CODE_FAIL, str(e)
+        return RETURN_CODE_FAIL, "", str(e)
 
 
-def put_log(log_filepath: str, content: str) -> None:
+def put_log(log_filepath: str, content_stdout: str, content_stderr: str) -> None:
     # ディレクトリ部分を抽出
     log_dir = os.path.dirname(log_filepath)
 
@@ -29,4 +29,7 @@ def put_log(log_filepath: str, content: str) -> None:
 
     # logディレクトリの中にlogファイルを作成して書き込み
     with open(log_filepath, "w") as f:
-        f.write(content)
+        f.write("----------------------- [stdout] -------------------------------\n")
+        f.write(content_stdout)
+        f.write("\n----------------------- [stderr] -------------------------------\n")
+        f.write(content_stderr)
