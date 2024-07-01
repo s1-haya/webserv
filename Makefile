@@ -52,7 +52,32 @@ val: all
 
 .PHONY	: check
 check:
-	@cppcheck --enable=all srcs test
+	@make check-srcs
+	@make check-test
+
+.PHONY	: check-srcs
+check-srcs:
+	@cppcheck --enable=all srcs
+
+.PHONY	: check-test
+check-test:
+	@mypy test
+
+.PHONY	: format
+format:
+	@make format-srcs
+	@make format-test
+	@echo "srcs and test format done!"
+
+.PHONY	: format-srcs
+format-srcs:
+	@find srcs -name "*.cpp" -exec clang-format -i {} +
+	@find srcs -name "*.hpp" -exec clang-format -i {} +
+
+.PHONY	: format-test
+format-test:
+	@black test
+	@isort test
 
 .PHONY	: test
 test:

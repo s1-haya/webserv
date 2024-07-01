@@ -3,4 +3,7 @@ __pycache__
 .pytest_cache
 venv
 
+!nginx/**
+!apache/**
 !*.sh
+!apache/**
