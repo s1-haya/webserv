@@ -34,12 +34,13 @@ int Run(const std::string &src, const std::string &substring, const Strs &expect
 	test_case++;
 
 	if (utils::SplitStr(src, substring) == expected) {
-		std::cerr << utils::color::GREEN << test_case << ".[OK] " << utils::color::RESET << src
+		std::cout << utils::color::GREEN << test_case << ".[OK] " << utils::color::RESET
 				  << std::endl;
 		return EXIT_SUCCESS;
 	}
-	std::cerr << utils::color::RED << test_case << ".[NG] " << utils::color::RESET << src
-			  << std::endl;
+	std::cout << utils::color::RED << test_case << ".[NG] " << utils::color::RESET << std::endl;
+	std::cerr << utils::color::RED << "SplitStr() failed" << utils::color::RESET << std::endl;
+	std::cerr << "src: [" << src << "]" << std::endl;
 	return EXIT_FAILURE;
 }
 
