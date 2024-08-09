@@ -1,7 +1,9 @@
 #include "tmp_http.hpp"
 #include "utils.hpp"
 #include <cstdlib>
+#include <fstream>
 #include <iostream>
+#include <sstream>
 
 namespace {
 
@@ -21,12 +23,15 @@ struct Result {
 	std::string error_log;
 };
 
-std::string BoolToStr(bool boolean) {
-	if (boolean) {
-		return "True";
-	} else {
-		return "False";
+std::string LoadFileContent(const std::string &file_path) {
+	std::ifstream file(file_path.c_str());
+	if (!file) {
+		std::cerr << "Error opening file: " << file_path << std::endl;
+		return "";
 	}
+	std::ostringstream file_content;
+	file_content << file.rdbuf();
+	return file_content.str();
 }
 
 int GetTestCaseNum() {
@@ -38,6 +43,19 @@ int GetTestCaseNum() {
 template <typename T>
 bool IsSame(const T &result, const T &expected) {
 	return result == expected;
+}
+
+template <typename T>
+int HandleResult(const T &result, const T &expected) {
+	if (result == expected) {
+		std::cout << utils::color::GREEN << GetTestCaseNum() << ".[OK]" << utils::color::RESET
+				  << std::endl;
+		return EXIT_SUCCESS;
+	} else {
+		std::cerr << utils::color::RED << GetTestCaseNum() << ".[NG] " << utils::color::RESET
+				  << std::endl;
+		return EXIT_FAILURE;
+	}
 }
 
 int HandleResult(const Result &result) {
@@ -75,14 +93,20 @@ Result IsSameHttpRequestParsedData(
 	if (!IsSameHttpRequestFormat(result.is_request_format, expected.is_request_format)) {
 		oss << "Error: Is Http Request Format\n";
 		oss << "Request Line\n";
-		oss << "- Expected: [" << BoolToStr(expected.is_request_format.is_request_line) << "]\n";
-		oss << "- Result  : [" << BoolToStr(result.is_request_format.is_request_line) << "]\n";
+		oss << "- Expected: [" << std::boolalpha << expected.is_request_format.is_request_line
+			<< "]\n";
+		oss << "- Result  : [" << std::boolalpha << result.is_request_format.is_request_line
+			<< "]\n";
 		oss << "Header Fields\n";
-		oss << "- Expected: [" << BoolToStr(expected.is_request_format.is_header_fields) << "]\n";
-		oss << "- Result  : [" << BoolToStr(result.is_request_format.is_header_fields) << "]\n";
+		oss << "- Expected: [" << std::boolalpha << expected.is_request_format.is_header_fields
+			<< "]\n";
+		oss << "- Result  : [" << std::boolalpha << result.is_request_format.is_header_fields
+			<< "]\n";
 		oss << "Body Message\n";
-		oss << "- Expected: [" << BoolToStr(expected.is_request_format.is_body_message) << "]\n";
-		oss << "- Result  : [" << BoolToStr(result.is_request_format.is_body_message) << "]\n";
+		oss << "- Expected: [" << std::boolalpha << expected.is_request_format.is_body_message
+			<< "]\n";
+		oss << "- Result  : [" << std::boolalpha << result.is_request_format.is_body_message
+			<< "]\n";
 		request_parsed_result.is_success = false;
 	}
 	request_parsed_result.error_log = oss.str();
@@ -111,19 +135,19 @@ int RunTestCases(const TestCase test_cases[], std::size_t num_test_cases) {
 int main(void) {
 	int ret_code = 0;
 
-	// HttpRequestParsedData関数のテストケース
+	// todo: http/http_response/test_http_request.cpp HttpRequestParsedData関数のテストケース
 
-	// リクエストラインの書式が正しい場合
+	// 1.リクエストラインの書式が正しい場合
 	http::HttpRequestParsedData test1_request_line;
 	test1_request_line.request_result.status_code        = http::OK;
 	test1_request_line.is_request_format.is_request_line = true;
 
-	// リクエストラインの書式が正しいくない場合
+	// 2.リクエストラインの書式が正しいくない場合
 	http::HttpRequestParsedData test2_request_line;
 	test2_request_line.request_result.status_code        = http::BAD_REQUEST;
 	test2_request_line.is_request_format.is_request_line = false;
 
-	// CRLNがない場合
+	// 3.CRLNがない場合
 	http::HttpRequestParsedData test3_request_line;
 	// 本来のステータスコードはRequest Timeout
 	test3_request_line.request_result.status_code        = http::OK;
@@ -140,21 +164,21 @@ int main(void) {
 		sizeof(test_case_http_request_line_format) / sizeof(test_case_http_request_line_format[0])
 	);
 
-	// ヘッダフィールドの書式が正しい場合
+	// 4.ヘッダフィールドの書式が正しい場合
 	http::HttpRequestParsedData test1_header_fileds;
 	test1_header_fileds.request_result.status_code         = http::OK;
 	test1_header_fileds.is_request_format.is_request_line  = true;
 	test1_header_fileds.is_request_format.is_header_fields = true;
 	test1_header_fileds.is_request_format.is_body_message  = true;
 
-	// ヘッダフィールドの書式が正しくない場合
+	// 5.ヘッダフィールドの書式が正しくない場合
 	http::HttpRequestParsedData test2_header_fileds;
 	test2_header_fileds.request_result.status_code         = http::BAD_REQUEST;
 	test2_header_fileds.is_request_format.is_request_line  = true;
 	test2_header_fileds.is_request_format.is_header_fields = false;
 	test2_header_fileds.is_request_format.is_body_message  = false;
 
-	// ヘッダフィールドにContent-Lengthがあるがボディメッセージがない場合
+	// 6.ヘッダフィールドにContent-Lengthがあるがボディメッセージがない場合
 	http::HttpRequestParsedData test3_header_fileds;
 	// 本来のステータスコードはRequest Timeout
 	test3_header_fileds.request_result.status_code         = http::OK;
@@ -176,14 +200,14 @@ int main(void) {
 			sizeof(test_case_http_request_header_fields_format[0])
 	);
 
-	// ボディメッセージが正しい場合
+	// 7.ボディメッセージが正しい場合
 	http::HttpRequestParsedData test1_body_message;
 	test1_body_message.request_result.status_code         = http::OK;
 	test1_body_message.is_request_format.is_request_line  = true;
 	test1_body_message.is_request_format.is_header_fields = true;
 	test1_body_message.is_request_format.is_body_message  = true;
 
-	// Content-Lengthの数値以上にボディメッセージがある場合
+	// 8.Content-Lengthの数値以上にボディメッセージがある場合
 	http::HttpRequestParsedData test2_body_message;
 	test2_body_message.request_result.status_code          = http::OK;
 	test2_body_message.is_request_format.is_request_line   = true;
@@ -191,7 +215,7 @@ int main(void) {
 	test2_body_message.is_request_format.is_body_message   = true;
 	test2_body_message.request_result.request.body_message = "ab";
 
-	// Content-Lengthの値の書式が間違ってる場合
+	// 9.Content-Lengthの値の書式が間違ってる場合
 	http::HttpRequestParsedData test3_body_message;
 	test3_body_message.request_result.status_code          = http::BAD_REQUEST;
 	test3_body_message.is_request_format.is_request_line   = true;
@@ -221,7 +245,7 @@ int main(void) {
 			sizeof(test_case_http_request_body_message_format[0])
 	);
 
-	// ボディメッセージを追加で送信した場合
+	// 10.ボディメッセージを追加で送信した場合
 	http::TmpHttp               test4_body_message;
 	http::HttpRequestParsedData test4_expected_body_message;
 	test4_expected_body_message.request_result.status_code          = http::OK;
@@ -238,7 +262,7 @@ int main(void) {
 	);
 	ret_code |= HandleResult(result);
 
-	// 追加でボディメッセージを送信
+	// 11.追加でボディメッセージを送信
 	test4_body_message.ParseHttpRequestFormat(1, "bc");
 	test4_expected_body_message.is_request_format.is_body_message = true;
 	result                                                        = IsSameHttpRequestParsedData(
@@ -246,11 +270,23 @@ int main(void) {
     );
 	ret_code |= HandleResult(result);
 
-	// todo: responseを確認、実行、作成のテストを別に分ける
-	//  const std::string test1_expected_response =
-	//  	"HTTP/1.1 200 OK\r\nConnection: close\r\nHost: sawa\r\n\r\nYou can't connect the dots "
-	//  	"looking forword. You can only connect the dots looking backwards";
-	//  ret_code |= HandleResult(test6_header_fileds.CreateHttpResponse(1),
-	//  test1_expected_response);
+	// todo: http/http_response/test_http_response.cpp responseを確認、実行、作成のテスト
+	// リクエストのステータスコードが200の場合
+	http::TmpHttp test1_response;
+	test1_response.ParseHttpRequestFormat(
+		1, "GET / HTTP/1.1\r\nHost: test\r\nContent-Length:  3\r\n\r\na"
+	);
+	const std::string test1_expected_response =
+		"HTTP/1.1 200 OK\r\nConnection: close\r\nHost: sawa\r\n\r\nYou can't connect the dots "
+		"looking forword. You can only connect the dots looking backwards";
+	ret_code |= HandleResult(test1_response.CreateHttpResponse(1), test1_expected_response);
+
+	// リクエストのステータスコードが400の場合
+	http::TmpHttp test2_response;
+	test2_response.ParseHttpRequestFormat(
+		1, "GET / HTTP/1.\r\nHost test\r\nContent-Length:  3\r\n\r\na"
+	);
+	std::string test2_expected_response = LoadFileContent("expected_response/test2.txt");
+	ret_code |= HandleResult(test2_response.CreateHttpResponse(1), test2_expected_response);
 	return ret_code;
 }

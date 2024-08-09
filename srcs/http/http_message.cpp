@@ -8,6 +8,7 @@ const std::string OPTIONAL_WHITESPACE = SP + HTAB;
 const std::string CRLF                = "\r\n";
 const std::string HEADER_FIELDS_END   = CRLF + CRLF;
 const std::string HTTP_VERSION        = "HTTP/1.1";
+const std::string SERVER_VERSION      = "webserv/1.1";
 
 const std::string GET                = "GET";
 const std::string DELETE             = "DELETE";
@@ -24,6 +25,7 @@ const std::string CONTENT_TYPE          = "Content-Type";
 const std::string CONTENT_LENGTH        = "Content-Length";
 const std::string TRANSFER_ENCODING     = "Transfer-Encoding";
 const std::string AUTHORIZATION         = "Authorization";
+const std::string SERVER                = "Server";
 const std::string BASIC_HEADER_FIELDS[] = {
 	HOST,
 	USER_AGENT,
@@ -33,7 +35,8 @@ const std::string BASIC_HEADER_FIELDS[] = {
 	CONTENT_TYPE,
 	CONTENT_LENGTH,
 	TRANSFER_ENCODING,
-	AUTHORIZATION
+	AUTHORIZATION,
+	SERVER
 };
 const std::size_t BASIC_HEADER_FIELDS_SIZE =
 	sizeof(BASIC_HEADER_FIELDS) / sizeof(BASIC_HEADER_FIELDS[0]);

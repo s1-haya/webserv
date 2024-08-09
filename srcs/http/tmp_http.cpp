@@ -19,11 +19,17 @@ void TmpHttp::ParseHttpRequestFormat(int client_fd, const std::string &read_buf)
 // todo: レスポンスを作成する
 std::string TmpHttp::CreateHttpResponse(int client_fd) {
 	HttpRequestParsedData data = storage_.GetClientSaveData(client_fd);
-	// ? ステータスコードがOK以外の場合はCreateErrorResponseResult(data.request_result)
-	// todo: VirtualServerクラス？？を引数で受けとり、リクエスト情報が正しいかどうかを確認する。
-	// HttpResponseParsedData data = HttpResponseParse(const HttpRequestParsedData& data,
-	// VirtualServer server);
-	HttpResponseResult response = HttpResponse::CreateHttpResponseResult(data.request_result);
+	HttpResponseResult    response;
+	if (data.request_result.status_code == OK) {
+		// todo: リクエスト情報が正しいかどうかを確認する。
+		// HttpResponseParsedData data = HttpResponseParse(const HttpRequestParsedData& data,
+		// VirtualServer server);
+		// todo: 引数はHttpResponseParsedDataになる。
+		response = HttpResponse::CreateHttpResponseResult(data.request_result);
+	} else {
+		// todo: ステータスコードがOK以外の場合はCreateErrorResponseResult(data.request_result)
+		response = HttpResponse::CreateErrorHttpResponseResult(data.request_result);
+	}
 	storage_.DeleteClientSaveData(client_fd);
 	return HttpResponse::CreateHttpResponse(response);
 }
