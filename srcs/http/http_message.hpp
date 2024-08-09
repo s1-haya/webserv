@@ -10,6 +10,7 @@ extern const std::string HTAB;
 extern const std::string OPTIONAL_WHITESPACE;
 extern const std::string CRLF;
 extern const std::string HTTP_VERSION;
+extern const std::string SERVER_VERSION;
 
 extern const std::string GET;
 extern const std::string DELETE;

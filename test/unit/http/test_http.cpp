@@ -1,7 +1,22 @@
 #include "tmp_http.hpp"
 #include "utils.hpp"
 #include <cstdlib>
+#include <fstream>
 #include <iostream>
+#include <sstream>
+
+namespace {
+
+std::string LoadFileContent(const std::string &file_path) {
+	std::ifstream file(file_path.c_str());
+	if (!file) {
+		std::cerr << "Error opening file: " << file_path << std::endl;
+		return "";
+	}
+	std::ostringstream file_content;
+	file_content << file.rdbuf();
+	return file_content.str();
+}
 
 int GetTestCaseNum() {
 	static unsigned int test_case_num = 0;
@@ -21,6 +36,8 @@ int HandleResult(const T &result, const T &expected) {
 		return EXIT_FAILURE;
 	}
 }
+
+} // namespace
 
 int main(void) {
 	int ret_code = 0;
@@ -105,9 +122,22 @@ int main(void) {
 	ret_code |= HandleResult(test6_header_fileds.GetIsBodyMessageFormat(1), true);
 	ret_code |= HandleResult(test6_header_fileds.GetBodyMessage(1), test6_body_message);
 
-	const std::string test6_expected_response =
+	// リクエストのステータスコードが200の場合
+	http::TmpHttp test1_response;
+	test1_response.ParseHttpRequestFormat(
+		1, "GET / HTTP/1.1\r\nHost: test\r\nContent-Length:  3\r\n\r\na"
+	);
+	const std::string test1_expected_response =
 		"HTTP/1.1 200 OK\r\nConnection: close\r\nHost: sawa\r\n\r\nYou can't connect the dots "
 		"looking forword. You can only connect the dots looking backwards";
-	ret_code |= HandleResult(test6_header_fileds.CreateHttpResponse(1), test6_expected_response);
+	ret_code |= HandleResult(test1_response.CreateHttpResponse(1), test1_expected_response);
+
+	// リクエストのステータスコードが400の場合
+	http::TmpHttp test2_response;
+	test2_response.ParseHttpRequestFormat(
+		1, "GET / HTTP/1.\r\nHost test\r\nContent-Length:  3\r\n\r\na"
+	);
+	std::string test2_expected_response = LoadFileContent("expected_response/test2.txt");
+	ret_code |= HandleResult(test2_response.CreateHttpResponse(1), test2_expected_response);
 	return ret_code;
 }

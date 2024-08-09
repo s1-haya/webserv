@@ -2,6 +2,7 @@
 #define HTTP_RESPONSE_HPP_
 
 #include "http_parse.hpp"
+#include <map>
 #include <string>
 
 namespace http {
@@ -20,12 +21,17 @@ struct HttpResponseResult {
 
 class HttpResponse {
   public:
+	typedef std::map<StatusCode, std::string> StatusReason;
 	static std::string        CreateHttpResponse(const HttpResponseResult &response);
 	static HttpResponseResult CreateHttpResponseResult(const HttpRequestResult &request_info);
+	static HttpResponseResult CreateErrorHttpResponseResult(const HttpRequestResult &request_info);
 
   private:
 	HttpResponse();
 	~HttpResponse();
+
+	static std::string
+	CreateErrorBodyMessage(const std::string &status_code, const std::string &status_reason);
 };
 
 } // namespace http

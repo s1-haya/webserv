@@ -23,10 +23,10 @@ struct HttpRequest {
 };
 
 enum StatusCode {
-	OK,
-	BAD_REQUEST,
-	NOT_FOUND,
-	NOT_IMPLEMENTED
+	OK              = 200,
+	BAD_REQUEST     = 400,
+	NOT_FOUND       = 404,
+	NOT_IMPLEMENTED = 501
 };
 
 struct HttpRequestResult {

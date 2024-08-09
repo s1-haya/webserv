@@ -7,6 +7,7 @@ const std::string HTAB                = "\t";
 const std::string OPTIONAL_WHITESPACE = SP + HTAB;
 const std::string CRLF                = "\r\n";
 const std::string HTTP_VERSION        = "HTTP/1.1";
+const std::string SERVER_VERSION      = "webserv/1.1";
 
 const std::string GET                = "GET";
 const std::string DELETE             = "DELETE";

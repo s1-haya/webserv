@@ -2,7 +2,13 @@
 use strict;
 use warnings;
 
+my $request_method = $ENV{'REQUEST_METHOD'};
 print "Content-type: text/html\n\n";
+if ($request_method eq 'DELETE') {
+    print "<html><body><h1>Resource deleted</h1></body></html>";
+    exit;
+}
+
 print "<!DOCTYPE html>";
 print "<html>";
 print "<head>";

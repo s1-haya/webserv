@@ -8,8 +8,8 @@
 #include <unistd.h>
 
 int main() {
-	const char *server_ip = "127.0.0.1"; // NginxサーバのIPアドレス
-	int         port      = 80;          // Nginxサーバのポート番号
+	const char *server_ip = "127.0.0.1"; // ApacheサーバのIPアドレス
+	int         port      = 4242;          // Apacheサーバのポート番号
 
 	// ソケットの作成
 	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -38,7 +38,7 @@ int main() {
 
 	// HTTP GETリクエストの作成
 	std::string request_body = "key1=value1&key2=value2";
-	std::string http_request = "DELETE / HTTP/1.1\r\n"
+	std::string http_request = "GET /cgi-bin/first.pl HTTP/1.1\r\n"
 							   "Host: a\r\n\r\n";
 	// Hostを複数設定した場合　HTTP/1.1 400 Bad Request
 	// std::string http_request = "GET / HTTP/1.1\r\n"
