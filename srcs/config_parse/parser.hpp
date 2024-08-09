@@ -21,6 +21,9 @@ class Parser {
 	context::ServerCon   CreateServerContext(NodeItr &);
 	context::LocationCon CreateLocationContext(NodeItr &);
 
+	void HandleServerContextDirective(context::ServerCon &server, NodeItr &it);
+	void HandleLocationContextDirective(context::LocationCon &location, NodeItr &it);
+
   public:
 	Parser(std::list<node::Node> &);
 	~Parser();

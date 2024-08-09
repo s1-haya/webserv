@@ -163,7 +163,7 @@ NodeList MakeExpectedTest2() {
 	return expected_result;
 }
 
-/* Test3 listen, server_name, root, index Directive*/
+/* Test3 listen, server_name, alias, index Directive*/
 NodeList MakeExpectedTest3() {
 	NodeList expected_result;
 
@@ -178,7 +178,7 @@ NodeList MakeExpectedTest3() {
 	node::Node expected_node_9  = {"location", node::CONTEXT};
 	node::Node expected_node_10 = {"/", node::WORD};
 	node::Node expected_node_11 = {"{", node::L_BRACKET};
-	node::Node expected_node_12 = {"root", node::DIRECTIVE};
+	node::Node expected_node_12 = {"alias", node::DIRECTIVE};
 	node::Node expected_node_13 = {"/data/", node::WORD};
 	node::Node expected_node_14 = {";", node::DELIM};
 	node::Node expected_node_15 = {"index", node::DIRECTIVE};
@@ -385,7 +385,7 @@ int main() {
 					listen 8080;\n \
 					server_name localhost;\n \
 					location / {\n \
-						root /data/;\n \
+						alias /data/;\n \
 						index index.html;\n \
 					}\n \
 				}\n",

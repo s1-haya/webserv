@@ -8,10 +8,13 @@ namespace config {
 namespace context {
 
 struct LocationCon {
-	std::string location;
-	std::string root;
-	std::string index;
-	std::string allowed_method;
+	std::string                          request_uri;
+	std::string                          alias;
+	std::string                          index;
+	bool                                 autoindex;
+	std::list<std::string>               allowed_methods;
+	std::pair<unsigned int, std::string> redirect; // cannnot use return
+	LocationCon() : autoindex(false) {}
 };
 
 // todo: PortListをstd::list<unsigned int>で作成？
@@ -19,9 +22,12 @@ typedef std::list<int>         PortList;
 typedef std::list<LocationCon> LocationList;
 
 struct ServerCon {
-	PortList     port;
-	std::string  server_name;
-	LocationList location_con;
+	PortList                             port;
+	std::list<std::string>               server_names;
+	LocationList                         location_con;
+	std::size_t                          client_max_body_size;
+	std::pair<unsigned int, std::string> error_page;
+	ServerCon() : client_max_body_size(1024) {}
 };
 
 } // namespace context

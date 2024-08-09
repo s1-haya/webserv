@@ -19,10 +19,10 @@ VirtualServer::LocationList ConvertLocations(const config::context::LocationList
 	typedef config::context::LocationList::const_iterator Itr;
 	for (Itr it = config_locations.begin(); it != config_locations.end(); ++it) {
 		Location location;
-		location.location       = it->location;
-		location.root           = it->root;
+		location.location       = it->request_uri;
+		location.root           = it->alias;
 		location.index          = it->index;
-		location.allowed_method = it->allowed_method;
+		location.allowed_method = *(it->allowed_methods.begin()); // tmp
 		location_list.push_back(location);
 	}
 	return location_list;
@@ -41,7 +41,7 @@ VirtualServer::PortList ConvertPorts(const config::context::PortList &ports_str)
 }
 
 VirtualServer ConvertToVirtualServer(const config::context::ServerCon &config_server) {
-	const std::string          &server_name = config_server.server_name;
+	const std::string          &server_name = *(config_server.server_names.begin()); // tmp
 	VirtualServer::LocationList locations   = ConvertLocations(config_server.location_con);
 	VirtualServer::PortList     ports       = ConvertPorts(config_server.port);
 	return VirtualServer(server_name, locations, ports);
