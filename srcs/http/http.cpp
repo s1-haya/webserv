@@ -17,6 +17,14 @@ std::string CreateLocalRedirectRequest(const std::string &location, const std::s
 	return response;
 }
 
+bool IsConnectionKeep(bool is_connection_close, const HeaderFields &header_fields) {
+	// responseのエラーの結果なので優先
+	if (is_connection_close) {
+		return false;
+	}
+	return HttpResponse::IsConnectionKeep(header_fields);
+}
+
 } // namespace
 
 Http::Http() {}
@@ -86,11 +94,13 @@ HttpResult Http::CreateHttpResponse(
 ) {
 	HttpResult            result;
 	HttpRequestParsedData data = storage_.GetClientSaveData(client_info.fd);
-	result.is_connection_keep =
-		HttpResponse::IsConnectionKeep(data.request_result.request.header_fields);
-	result.request_buf = data.current_buf;
-	result.response =
+	result.request_buf         = data.current_buf;
+	HttpResponseResult response_result =
 		HttpResponse::Run(client_info, server_info, data.request_result, result.cgi_result);
+	result.is_connection_keep = IsConnectionKeep(
+		response_result.is_connection_close, data.request_result.request.header_fields
+	);
+	result.response = response_result.response;
 	// todo: 仮。CGI実行中はfalseにしたい
 	result.is_response_complete = !result.cgi_result.is_cgi;
 	if (!result.cgi_result.is_cgi) { // cgiの場合はcgiのhttp_responseを作るときにsave_dataが必要

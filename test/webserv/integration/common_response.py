@@ -98,8 +98,11 @@ response_header_400 = create_response_header(
 response_header_403 = create_response_header(
     403, CLOSE, error_files_data["forbidden_file_403_length"], TEXT_HTML
 )
-response_header_404 = create_response_header(
+response_header_404_close = create_response_header(
     404, CLOSE, error_files_data["not_found_file_404_length"], TEXT_HTML
+)
+response_header_404_keep = create_response_header(
+    404, KEEP_ALIVE, error_files_data["not_found_file_404_length"], TEXT_HTML
 )
 response_header_405 = create_response_header(
     405, CLOSE, error_files_data["not_allowed_file_405_length"], TEXT_HTML
@@ -132,7 +135,10 @@ bad_request_response = response_header_400 + error_files_data[
 forbidden_response = response_header_403 + error_files_data[
     "forbidden_file_403"
 ].decode("utf-8")
-not_found_response = response_header_404 + error_files_data[
+not_found_response_close = response_header_404_close + error_files_data[
+    "not_found_file_404"
+].decode("utf-8")
+not_found_response_keep = response_header_404_keep + error_files_data[
     "not_found_file_404"
 ].decode("utf-8")
 not_allowed_response = response_header_405 + error_files_data[

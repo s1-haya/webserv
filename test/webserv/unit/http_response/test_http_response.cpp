@@ -165,7 +165,7 @@ int main(void) {
 	request_info.request.request_line.request_target = "/";
 	request_info.request.request_line.version        = http::HTTP_VERSION;
 	request_info.request.header_fields[http::HOST]   = "sawa";
-	std::string response1 =
+	http::HttpResponseResult response1 =
 		http::HttpResponse::Run(client_infos, server_info, request_info, cgi_result);
 
 	std::string expected1_status_line =
@@ -177,12 +177,12 @@ int main(void) {
 	const std::string &expected1_response =
 		expected1_status_line + expected1_header_fields + http::CRLF + expected1_body_message;
 
-	ret_code |= HandleResult(response1, expected1_response);
+	ret_code |= HandleResult(response1.response, expected1_response);
 
 	// DELETEメソッドの許可がないhost2にリクエスト
 	request_info.request.request_line.method       = http::DELETE;
 	request_info.request.header_fields[http::HOST] = "host2";
-	std::string response2 =
+	http::HttpResponseResult response2 =
 		http::HttpResponse::Run(client_infos, server_info, request_info, cgi_result);
 
 	std::string expected2_status_line =
@@ -194,14 +194,14 @@ int main(void) {
 	);
 	const std::string &expected2_response =
 		expected2_status_line + expected2_header_fields + http::CRLF + expected2_body_message;
-	ret_code |= HandleResult(response2, expected2_response);
+	ret_code |= HandleResult(response2.response, expected2_response);
 
 	// Redirectのテスト
 	request_info.request.request_line.method         = http::POST;
 	request_info.request.request_line.request_target = "/www/";
 	request_info.request.request_line.version        = http::HTTP_VERSION;
 	request_info.request.header_fields[http::HOST]   = "host1";
-	std::string response3 =
+	http::HttpResponseResult response3 =
 		http::HttpResponse::Run(client_infos, server_info, request_info, cgi_result);
 
 	std::string expected3_status_line =
@@ -216,9 +216,9 @@ int main(void) {
 	);
 	const std::string &expected3_response =
 		expected3_status_line + expected3_header_fields + http::CRLF + expected3_body_message;
-	ret_code |= HandleResult(response3, expected3_response);
+	ret_code |= HandleResult(response3.response, expected3_response);
 	expected2_status_line + expected2_header_fields + http::CRLF + expected2_body_message;
-	ret_code |= HandleResult(response2, expected2_response);
+	ret_code |= HandleResult(response2.response, expected2_response);
 
 	// ContentTypeのテスト
 	const std::string &file_name = "../../../../root/upload/delete_file";
@@ -231,7 +231,7 @@ int main(void) {
 	request_info.request.request_line.request_target = "/www/delete_file";
 	request_info.request.request_line.version        = http::HTTP_VERSION;
 	request_info.request.header_fields[http::HOST]   = "host2";
-	std::string response4 =
+	http::HttpResponseResult response4 =
 		http::HttpResponse::Run(client_infos, server_info, request_info, cgi_result);
 
 	std::string expected4_status_line =
@@ -244,7 +244,7 @@ int main(void) {
 	);
 	const std::string &expected4_response =
 		expected4_status_line + expected4_header_fields + http::CRLF + expected4_body_message;
-	ret_code |= HandleResult(response4, expected4_response);
+	ret_code |= HandleResult(response4.response, expected4_response);
 	std::remove(file_name.c_str());
 
 	// ErrorPageのテスト
@@ -252,7 +252,7 @@ int main(void) {
 	request_info.request.request_line.request_target = "/www/aaa";
 	request_info.request.request_line.version        = http::HTTP_VERSION;
 	request_info.request.header_fields[http::HOST]   = "host2";
-	std::string response5 =
+	http::HttpResponseResult response5 =
 		http::HttpResponse::Run(client_infos, server_info, request_info, cgi_result);
 
 	std::string expected5_status_line =
@@ -264,7 +264,7 @@ int main(void) {
 	);
 	const std::string &expected5_response =
 		expected5_status_line + expected5_header_fields + http::CRLF + expected5_body_message;
-	ret_code |= HandleResult(response5, expected5_response);
+	ret_code |= HandleResult(response5.response, expected5_response);
 
 	DeleteAddrList(server_info);
 	return ret_code;

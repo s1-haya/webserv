@@ -46,25 +46,36 @@ std::string ReadErrorFile(const std::string &file_path) {
 	return ss.str();
 }
 
+bool IsErrorConnectionClose(EStatusCode status_code) {
+	return status_code == http::BAD_REQUEST || status_code == http::INTERNAL_SERVER_ERROR;
+}
+
+void SetErrorConnectionClose(HeaderFields &header_fields, EStatusCode status_code) {
+	if (IsErrorConnectionClose(status_code)) {
+		header_fields[CONNECTION] = CLOSE;
+	}
+}
+
 } // namespace
 
-std::string HttpResponse::Run(
+HttpResponseResult HttpResponse::Run(
 	const http::ClientInfos             &client_info,
 	const server::VirtualServerAddrList &server_info,
 	const HttpRequestResult             &request_info,
 	CgiResult                           &cgi_result
 ) {
-	HttpResponseFormat response =
+	HttpResponseFormatResult response_format_result =
 		CreateHttpResponseFormat(client_info, server_info, request_info, cgi_result);
 	if (cgi_result.is_cgi) {
-		return "";
+		return HttpResponseResult(false, "");
 	}
-	return CreateHttpResponse(response);
+	return HttpResponseResult(
+		response_format_result.is_connection_close,
+		CreateHttpResponse(response_format_result.http_response_format)
+	);
 }
 
-// todo: HttpResponseFormat HttpResponse::CreateHttpResponseFormat(const HttpRequestResult
-// &request_info) 作成
-HttpResponseFormat HttpResponse::CreateHttpResponseFormat(
+HttpResponseFormatResult HttpResponse::CreateHttpResponseFormat(
 	const http::ClientInfos             &client_info,
 	const server::VirtualServerAddrList &server_info,
 	const HttpRequestResult             &request_info,
@@ -80,7 +91,10 @@ HttpResponseFormat HttpResponse::CreateHttpResponseFormat(
 			HttpServerInfoCheck::Check(server_info, request_info.request);
 		error_page = server_info_result.error_page;
 		if (server_info_result.redirect.IsOk()) {
-			return HandleRedirect(response_header_fields, server_info_result);
+			// redirect時のエラーでconnection:closeで返したい場合はcatchに入ってくれる
+			return HttpResponseFormatResult(
+				false, HandleRedirect(response_header_fields, server_info_result)
+			);
 		}
 		if (IsCgi(
 				server_info_result.cgi_extension,
@@ -127,10 +141,14 @@ HttpResponseFormat HttpResponse::CreateHttpResponseFormat(
 		}
 	}
 	response_header_fields[CONTENT_LENGTH] = utils::ToString(response_body_message.length());
-	return HttpResponseFormat(
-		StatusLine(HTTP_VERSION, status_code.GetStatusCode(), status_code.GetReasonPhrase()),
-		response_header_fields,
-		response_body_message
+	SetErrorConnectionClose(response_header_fields, status_code.GetEStatusCode());
+	return HttpResponseFormatResult(
+		IsErrorConnectionClose(status_code.GetEStatusCode()),
+		HttpResponseFormat(
+			StatusLine(HTTP_VERSION, status_code.GetStatusCode(), status_code.GetReasonPhrase()),
+			response_header_fields,
+			response_body_message
+		)
 	);
 }
 

@@ -7,7 +7,8 @@ from common_functions import (delete_file, read_file,
 from common_response import (bad_request_response, created_response_close,
                              created_response_keep, forbidden_response,
                              no_content_response_close, not_allowed_response,
-                             not_found_response, payload_too_large_response,
+                             not_found_response_close,
+                             payload_too_large_response,
                              response_header_get_root_200_close,
                              root_index_file, timeout_response)
 
@@ -241,7 +242,7 @@ def test_post_201_responses(
         # 403 is below -> test_post_403_responses()
         (
             REQUEST_POST_4XX_DIR + "404_01_non_exist_directory.txt",
-            not_found_response,
+            not_found_response_close,
             None,
         ),
         (
