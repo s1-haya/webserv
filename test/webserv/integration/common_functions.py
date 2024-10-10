@@ -38,6 +38,11 @@ def assert_response(response, expected_response):
     ), f"Expected response\n\n {repr(expected_response)}, but got\n\n {repr(response)}"
 
 
+def assert_file_content(result_file_path, expected_content):
+    result_content, _ = read_file(result_file_path)
+    assert_response(result_content, expected_content)
+
+
 def build_client_module():
     # client_module ディレクトリに移動
     client_module_dir = os.path.join(os.path.dirname(__file__), "client_module")
